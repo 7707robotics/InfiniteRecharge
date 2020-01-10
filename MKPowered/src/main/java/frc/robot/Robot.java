@@ -24,12 +24,28 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
+  private SpeedController leftController , rightController;
+  private Joystick driverInput;
+  private DifferentialDrive drive;
+  private DriveSubsystem driveSubsystem;
+
   /**
    * This function is run when the robot is first started up and should be
    * used for any initialization code.
    */
   @Override
   public void robotInit() {
+    // drive train
+    leftController = new SpeedControllerGroup(new PWMVictorSPX(2), new PWMVictorSPX(3));
+    rightController = new SpeedControllerGroup(new PWMVictorSPX(0), new PWMVictorSPX(1));
+    drive = new DifferentialDrive(leftController, rightController);
+    driverInput = new Joystick(0);
+    driveSubsystem = new DriveSubsystem(() -> -0.6*driverInput.getRawAxis(1),
+                                        () -> 0.5*driverInput.getRawAxis(0),
+                                         drive);
+    drive.setSafetyEnabled(false);
+
+    
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);

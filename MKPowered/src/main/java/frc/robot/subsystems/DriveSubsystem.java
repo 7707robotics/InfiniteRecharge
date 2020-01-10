@@ -10,11 +10,23 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class DriveSubsystem extends SubsystemBase {
-  /**
-   * Creates a new DriveSubsystem.
-   */
-  public DriveSubsystem() {
+  private DifferentialDrive drive;
+  private DoubleSupplier forward, turn;
 
+  public DriveSubsystem(DifferentialDrive drive, DoubleSupplier forward, DoubleSupplier turn) {
+    this.drive = drive;
+    this.forward = forward;
+    this.turn = turn;
+  }
+
+  public void drive() {
+    
+    drive.arcadeDrive(forwardAxis, turnAxis, true);
+    drive.setSafetyEnabled(false);
+  }
+
+  public void driveStop() {
+    drive.arcadeDrive(0, 0, true)
   }
 
   @Override
