@@ -7,14 +7,32 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.DoubleSupplier;
+
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class DriveSubsystem extends SubsystemBase {
-  /**
-   * Creates a new DriveSubsystem.
-   */
-  public DriveSubsystem() {
+  private DifferentialDrive drive;
+  private DoubleSupplier forward, turn;
 
+  public DriveSubsystem(DoubleSupplier forward, DoubleSupplier turn, DifferentialDrive drive) {
+    this.drive = drive;
+    this.forward = forward;
+    this.turn = turn;
+  }
+
+  public void drive() {
+    
+    double forwardAxis = forward.getAsDouble();
+    double turnAxis = turn.getAsDouble();
+    
+    drive.arcadeDrive(forwardAxis, turnAxis, true);
+    drive.setSafetyEnabled(false);
+  }
+
+  public void driveStop() {
+    drive.arcadeDrive(0, 0, true);
   }
 
   @Override

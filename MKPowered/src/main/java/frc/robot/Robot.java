@@ -8,11 +8,18 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.PWMVictorSPX;
+import edu.wpi.first.wpilibj.SpeedController;
+import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.util.Color;
+import frc.robot.subsystems.DriveSubsystem;
+
 import com.revrobotics.ColorSensorV3;
 import com.revrobotics.ColorMatch;
 import com.revrobotics.ColorMatchResult;
@@ -42,6 +49,12 @@ public class Robot extends TimedRobot {
   private final Color kGreenTarget = ColorMatch.makeColor(0.197, 0.561, 0.240);
   private final Color kRedTarget = ColorMatch.makeColor(0.561, 0.232, 0.114);
   private final Color kYellowTarget = ColorMatch.makeColor(0.361, 0.524, 0.113);
+  
+  // drive
+  private SpeedControllerGroup leftController , rightController;
+  private Joystick driverInput;
+  private DifferentialDrive drive;
+  private DriveSubsystem driveSubsystem;
 
   /**
    * This function is run when the robot is first started up and should be
@@ -49,6 +62,17 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+    // drive train
+    leftController = new SpeedControllerGroup(new PWMVictorSPX(2), new PWMVictorSPX(3));
+    rightController = new SpeedControllerGroup(new PWMVictorSPX(0), new PWMVictorSPX(1));
+    drive = new DifferentialDrive(leftController, rightController);
+    driverInput = new Joystick(0);
+    driveSubsystem = new DriveSubsystem(() -> -0.6*driverInput.getRawAxis(1),
+                                        () -> 0.5*driverInput.getRawAxis(0),
+                                         drive);
+    drive.setSafetyEnabled(false);
+
+    
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
