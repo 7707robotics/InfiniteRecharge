@@ -53,7 +53,7 @@ public class Robot extends TimedRobot {
   // drive
   private SpeedControllerGroup leftController , rightController;
   private Joystick driverInput;
-  private DifferentialDrive drive;
+  public DifferentialDrive drive;
   private DriveSubsystem driveSubsystem;
 
   /**
