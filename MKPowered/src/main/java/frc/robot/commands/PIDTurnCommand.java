@@ -7,14 +7,12 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.GyroBase;
-import edu.wpi.first.wpilibj.PWMVictorSPX;
-import edu.wpi.first.wpilibj.SpeedControllerGroup;
-import edu.wpi.first.wpilibj.controller.PIDController;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Robot;
+import frc.robot.RobotMap;
 import frc.robot.subsystems.DriveSubsystem;
+
+import edu.wpi.first.wpilibj.GyroBase;
+import edu.wpi.first.wpilibj.controller.PIDController;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class PIDTurnCommand extends CommandBase {
   /**
@@ -23,24 +21,13 @@ public class PIDTurnCommand extends CommandBase {
   GyroBase gyro;
   PIDController controller;
   DriveSubsystem driveSubsystem;
-  DifferentialDrive drive;
 
-    public PIDTurnCommand(GyroBase gyro, double setpoint, double Kp, double Ki, double Kd) {
-    this.gyro = gyro;
-    this.controller = new PIDController(Kp, Ki, Kd);
+    public PIDTurnCommand(double setpoint) {
+    gyro = RobotMap.gyro;
+    controller = new PIDController(RobotMap.Kp_TURN, RobotMap.Ki_TURN, RobotMap.Kd_TURN);
+    driveSubsystem = new DriveSubsystem();
+
     controller.setSetpoint(setpoint);
-
-    //Temp:
-    SpeedControllerGroup leftController = new SpeedControllerGroup(new PWMVictorSPX(2), new PWMVictorSPX(3));
-    SpeedControllerGroup rightController = new SpeedControllerGroup(new PWMVictorSPX(0), new PWMVictorSPX(1));
-    this.drive = new DifferentialDrive(leftController, rightController);
-    //end of temp
-
-    driveSubsystem = new DriveSubsystem(
-      () -> 0.0, 
-      () -> controller.calculate(gyro.getAngle()), 
-      drive
-    );
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(driveSubsystem);
@@ -48,12 +35,6 @@ public class PIDTurnCommand extends CommandBase {
 
   public void setSetpoint(double setpoint) {
     controller.setSetpoint(setpoint);
-  }
-
-  public void setCoefficients(double Kp, double Ki, double Kd) {
-    controller.setP(Kp);
-    controller.setI(Ki);
-    controller.setD(Kd);
   }
 
   // Called when the command is initially scheduled.
@@ -64,7 +45,8 @@ public class PIDTurnCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    driveSubsystem.drive();
+    //Calculates the necessary speed using PID and runs the turn method
+    driveSubsystem.turn(() -> controller.calculate(gyro.getAngle()));
   }
 
   // Called once the command ends or is interrupted.
@@ -75,6 +57,6 @@ public class PIDTurnCommand extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return controller.atSetpoint();
   }
 }

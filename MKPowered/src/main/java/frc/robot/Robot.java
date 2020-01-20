@@ -18,6 +18,8 @@ import edu.wpi.first.wpilibj.PWMVictorSPX;
 import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.subsystems.DriveSubsystem;
 
 import com.revrobotics.ColorSensorV3;
@@ -49,12 +51,8 @@ public class Robot extends TimedRobot {
   private final Color kGreenTarget = ColorMatch.makeColor(0.197, 0.561, 0.240);
   private final Color kRedTarget = ColorMatch.makeColor(0.561, 0.232, 0.114);
   private final Color kYellowTarget = ColorMatch.makeColor(0.361, 0.524, 0.113);
-  
-  // drive
-  private SpeedControllerGroup leftController , rightController;
-  private Joystick driverInput;
-  public DifferentialDrive drive;
-  private DriveSubsystem driveSubsystem;
+  //drive
+  DriveSubsystem driveSubsystem;
 
   /**
    * This function is run when the robot is first started up and should be
@@ -63,14 +61,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     // drive train
-    leftController = new SpeedControllerGroup(new PWMVictorSPX(2), new PWMVictorSPX(3));
-    rightController = new SpeedControllerGroup(new PWMVictorSPX(0), new PWMVictorSPX(1));
-    drive = new DifferentialDrive(leftController, rightController);
-    driverInput = new Joystick(0);
-    driveSubsystem = new DriveSubsystem(() -> -0.6*driverInput.getRawAxis(1),
-                                        () -> 0.5*driverInput.getRawAxis(0),
-                                         drive);
-    drive.setSafetyEnabled(false);
+     driveSubsystem = new DriveSubsystem();
 
     
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
@@ -88,6 +79,8 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
+
+    CommandScheduler.getInstance().run();
 
     // gets most likely color
     Color detectedColor = m_colorSensor.getColor();
@@ -155,6 +148,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
+    CommandScheduler.getInstance().schedule(true, new DefaultDriveCommand());
   }
 
   /**

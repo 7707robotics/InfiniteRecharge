@@ -12,23 +12,21 @@ import frc.robot.subsystems.DriveSubsystem;
 
 public class DefaultDriveCommand extends CommandBase {
   DriveSubsystem driveSubsystem;
-  public DefaultDriveCommand(DriveSubsystem driveSubsystem) {
-    this.driveSubsystem = driveSubsystem;
-    //setInterruptible(true); // ??
-    addRequirements(driveSubsystem);
+  public DefaultDriveCommand() {
+    driveSubsystem = new DriveSubsystem();
     // Use addRequirements() here to declare subsystem dependencies.
+    addRequirements(driveSubsystem);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    driveSubsystem.drive();
+    driveSubsystem.teleopDrive();
   }
 
   // Called once the command ends or is interrupted.

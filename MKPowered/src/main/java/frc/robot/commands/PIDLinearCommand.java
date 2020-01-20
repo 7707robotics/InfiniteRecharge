@@ -7,13 +7,12 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.PWMVictorSPX;
-import edu.wpi.first.wpilibj.SpeedControllerGroup;
-import edu.wpi.first.wpilibj.controller.PIDController;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.RobotMap;
 import frc.robot.subsystems.DriveSubsystem;
+
+import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.controller.PIDController;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class PIDLinearCommand extends CommandBase {
   /**
@@ -22,24 +21,14 @@ public class PIDLinearCommand extends CommandBase {
   Encoder encoder;
   PIDController controller;
   DriveSubsystem driveSubsystem;
-  DifferentialDrive drive;
-  public PIDLinearCommand(Encoder encoder, double setpoint, double Kp, double Ki, double Kd) {
-    this.encoder = encoder;
-    this.controller = new PIDController(Kp, Ki, Kd);
+  public PIDLinearCommand(double setpoint) {
+    encoder = RobotMap.encoder;
+    controller = new PIDController(RobotMap.Kp_FORWARD, RobotMap.Ki_FORWARD, RobotMap.Kd_FORWARD);
     controller.setSetpoint(setpoint);
 
-    //Temp:
-    SpeedControllerGroup leftController = new SpeedControllerGroup(new PWMVictorSPX(2), new PWMVictorSPX(3));
-    SpeedControllerGroup rightController = new SpeedControllerGroup(new PWMVictorSPX(0), new PWMVictorSPX(1));
-    this.drive = new DifferentialDrive(leftController, rightController);
-    //end of temp
-
-    driveSubsystem = new DriveSubsystem(
-      () -> controller.calculate(encoder.getDistance()), 
-      () -> 0.0,
-      drive
-    );
+    driveSubsystem = new DriveSubsystem(); 
     // Use addRequirements() here to declare subsystem dependencies.
+    addRequirements(driveSubsystem);
   }
 
   // Called when the command is initially scheduled.
@@ -50,7 +39,8 @@ public class PIDLinearCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    driveSubsystem.drive();
+    //Calculates the necessary speed using PID and runs the forward method
+    driveSubsystem.forward(() -> controller.calculate(encoder.getDistance()));
   }
 
   // Called once the command ends or is interrupted.
@@ -61,6 +51,6 @@ public class PIDLinearCommand extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return controller.atSetpoint();
   }
 }

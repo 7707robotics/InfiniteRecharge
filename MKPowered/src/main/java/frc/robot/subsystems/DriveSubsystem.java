@@ -7,28 +7,36 @@
 
 package frc.robot.subsystems;
 
+import frc.robot.RobotMap;
+
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class DriveSubsystem extends SubsystemBase {
   private DifferentialDrive drive;
-  private DoubleSupplier forward, turn;
+  private GenericHID driverInput;
+  private DriveSubsystem driveSubsystem;
 
-  public DriveSubsystem(DoubleSupplier forward, DoubleSupplier turn, DifferentialDrive drive) {
-    this.drive = drive;
-    this.forward = forward;
-    this.turn = turn;
+  public DriveSubsystem() {
+    drive = RobotMap.drive;
+    drive.setSafetyEnabled(false);
+    driverInput = RobotMap.driverInput;
   }
 
-  public void drive() {
+  public void teleopDrive() {
     
-    double forwardAxis = forward.getAsDouble();
-    double turnAxis = turn.getAsDouble();
-    
-    drive.arcadeDrive(forwardAxis, turnAxis, true);
-    drive.setSafetyEnabled(false);
+    drive.arcadeDrive( -0.6*driverInput.getRawAxis(1), 0.5*driverInput.getRawAxis(0), true);
+  }
+
+  public void forward(DoubleSupplier speed) {
+    drive.arcadeDrive(speed.getAsDouble(), 0);
+  }
+
+  public void turn(DoubleSupplier rotation) {
+    drive.arcadeDrive(0, rotation.getAsDouble());
   }
 
   public void driveStop() {
