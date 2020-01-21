@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class DriveSubsystem extends SubsystemBase {
   private DifferentialDrive drive;
   private GenericHID driverInput;
-  private DriveSubsystem driveSubsystem;
 
   public DriveSubsystem() {
     drive = RobotMap.drive;
